@@ -217,16 +217,19 @@ class MigrateRelationsService extends AbstractService {
 
         return $this->database->exec_SELECTquery(
                 'tx_dam_mm_ref.*,
-			sys_file_metadata.title,
-			sys_file_metadata.description,
-			sys_file_metadata.alternative,
-			sys_file.uid as sys_file_uid',
+                sys_file_metadata.title,
+                sys_file_metadata.description,
+                sys_file_metadata.alternative,
+                sys_file.uid as sys_file_uid',
                 'tx_dam_mm_ref
-			JOIN sys_file ON
-				sys_file._migrateddamuid = tx_dam_mm_ref.uid_local
-			JOIN sys_file_metadata ON
-				sys_file.uid = sys_file_metadata.file
-				',
+                JOIN tx_dam ON
+                    tx_dam_mm_ref.uid_local = tx_dam.uid
+                JOIN sys_file ON
+                    sys_file._migrateddamuid = tx_dam_mm_ref.uid_local
+                JOIN sys_file_metadata ON
+                    (tx_dam.sys_language_uid = sys_file_metadata.sys_language_uid AND sys_file.uid = sys_file_metadata.file)
+                JOIN tt_content ON tx_dam_mm_ref.uid_foreign = tt_content.uid
+                ',
                 $where,
                 '',
                 'tx_dam_mm_ref.sorting ASC,tx_dam_mm_ref.sorting_foreign ASC',
